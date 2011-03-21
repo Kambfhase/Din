@@ -99,15 +99,16 @@ MfG Hase
 
 ## Links
 
-**ES 5**
-
 http://code.google.com/p/es-lab/wiki/Traits  
 http://webreflection.blogspot.com/2010/01/es5-es5-classes-as-descriptor-objects.html
-
-**ES 3**
-
 http://javascript.crockford.com/prototypal.html  
 http://jsclass.jcoglan.com/  
 http://ejohn.org/blog/simple-javascript-inheritance/  
 http://github.com/tobeytailor/def.js  
 http://mootools.net/docs/core/Class/Class  
+http://github.com/polvero/klass  
+http://github.com/Joose/Joose  
+http://github.com/BonsaiDen/neko.js  
+http://github.com/pmuellr/scooj  
+http://github.com/maxpert/oorja  
+http://github.com/creationix/pattern  
