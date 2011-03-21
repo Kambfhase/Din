@@ -28,6 +28,22 @@ Some like `new` some not. I think it should be optional. Also the capital first 
 
 The framework should be able to run in any environment. There is no need for it, nor the classes to be on the global object. creating local variables is just fine.
 
+## API
+
+`Class.create( obj)` returns a new class with the properties specified by obj:  
+` obj.parent` (optional) a reference to the parent class.  
+` obj.static` (optional) property descriptor map to be added to the resulting class constructor.  
+` obj.instance` (optional) property descriptor map added to the classes prototype.  
+`Class( obj)` forwards to `Class.create( obj)`.  
+
+let Klass be a class create via `Class.create( obj)` ( you see what I did there?!).  
+`Klass.create( args)` default: creates a new object inheriting from Klass.prototype.  
+`Klass( args)` forwards to `Klass.create( args)`.  
+`Klass.is( obj)` default: returns true if obj inherits from Klass.prototype.  
+`Klass.prototype` the classes prototype object.  
+`Klass.prototype.constructor` points to `Klass`.  
+
+
 ## Usage
 
 So, lets go with the usual Person example:
