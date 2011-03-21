@@ -1,19 +1,18 @@
 /*
  * Din - A JavaScript Double Inheritance Framework
  * by Kambfhase
- * v0.1
+ * v0.1.1
  * MIT License
  */
 
 var Class = (function( Object){
 "use strict";
 
-var Class,
-    skip = Object.getOwnPropertyNames(function(){});
+var skip = Object.getOwnPropertyNames(function(){}),
 
 Class = function( obj){
-    var klass = function(){
-            return klass.create.apply( klass, arguments);
+    var klass = function self(){
+            return self.create.apply( self, arguments);
         }, props, i, prop,
         par = obj[ "parent" ],
         stat = obj[ "static"],
@@ -24,17 +23,17 @@ Class = function( obj){
         i= props.length;
         while( i--){
             prop = props[ i];
-            if( skip.indexOf( prop) == -1){
-                klass = Object.defineProperty( klass, prop, Object.getOwnPropertyDescriptor( par, prop));
+            if( !~ skip.indexOf( prop)){
+                 Object.defineProperty( klass, prop, Object.getOwnPropertyDescriptor( par, prop));
             }
         }
     }
     
     if( stat){
-        klass = Object.defineProperties( klass, stat);
+        Object.defineProperties( klass, stat);
     }
     klass.prototype = Object.create( (par && par.prototype || Object.prototype), inst);
-    klass.prototype = Object.defineProperty( klass.prototype, "constructor", {
+    Object.defineProperty( klass.prototype, "constructor", {
         value: klass,
         enumerable: false,
         configurable: true,
@@ -46,12 +45,12 @@ Class = function( obj){
     if( !klass.is ){
         klass.is = function( obj){ return this.prototype.isPrototypeOf( obj);};
     }
-
+    
 
     return klass;
 };
 
-Class = Class({
+return Class({
     "static": {
         create: {
             value: Class,
@@ -61,7 +60,5 @@ Class = Class({
         }
     }
 });
-
-return Class;
 
 })(Object);
