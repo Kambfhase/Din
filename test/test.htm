@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+<link href="qunit.css" rel="Stylesheet" type="text/css"/>
+<title>Din - Unit Tests</title>
+</head>
+<body>
+
+ <h1 id="qunit-header">Din - Unit Tests</h1>
+ <h2 id="qunit-banner"></h2>
+ <div id="qunit-testrunner-toolbar"></div>
+ <h2 id="qunit-userAgent"></h2>
+ <ol id="qunit-tests"></ol>
+ <div id="qunit-fixture">test markup, will be hidden</div>
+ 
+<script src="qunit.js"></script>
+<script src="../din.js"></script>
+<script>
+
+module("Basic basics");
+
+test("Basic setup", function(){
+    expect(4);
+    ok( Class,"Class exists");
+    ok( Class.create,"Class.create exists");
+    equals( typeof Class, "function", "Class is a function"); 
+    equals( typeof Class.create, "function", "Class.create is a function"); 
+});
+
+module("simple class");
+
+var Klass = Class({
+    // no parent
+    "static":{
+        method: {
+            value: function(){
+                return 2;
+            }
+        },
+        self: {
+            value: function(){
+                return this;
+            }
+        }
+    },
+    instance: {
+        method: {
+            value: function(){
+                return 2;
+            }
+        },
+        prop: {
+            value: "foo",
+            enumerable: true,
+            writable:true,
+            configurable:true
+        },
+        accessor: {
+            get: function(){
+                return 1;
+            },
+            enumerable: true
+        },
+        self: {
+            value: function(){
+                return this;
+            }
+        }
+    }
+}),k=Klass();
+
+test("simple basics", function(){
+    expect(6);
+    
+    ok( Klass,"Klass exists");
+    ok( Klass.prototype,"Klass.prototype exists");
+    equals( Klass.prototype.constructor, Klass, "Klass is its instances Constructor");
+    equals( typeof Klass, "function", "Klass is a function"); 
+    equals( typeof Klass.create, "function", "Klass.create is a function"); 
+    equals( typeof Klass.is, "function", "Klass.is is a function");
+});
+
+test("creation",function(){
+    expect(5);
+    
+    ok( Klass(), "Klass returns something");
+    ok( Klass.create(), "Klass.create returns something");
+    ok( new Klass(), "new should not break things!");
+
+    ok( k instanceof Klass,"k is an instance of Klass");
+    ok( Klass.is( k),"k is an instance of Klass");
+});
+
+test("correct instances",function(){
+    expect(7);
+    
+    equals( typeof k.method, "function","k.method should be a function");
+    equals( k.method(), 2, "yay!");
+    equals( typeof k.prop, "string","k.prop is a string");
+    equals( k.prop, "foo");
+    equals( typeof k.accessor, "number","getter returns a value");
+    equals( k.accessor, 1,"accessor returns gettet value");
+    equals( k.self(), k,"correct <this>");
+});
+
+test("correct descriptors",function(){
+    var p = Klass.prototype, d;
+    expect(13);
+    
+    ok( p.hasOwnProperty("method"),"method should be on the prototype");
+    d=Object.getOwnPropertyDescriptor(p, "method");
+    equals(d.enumerable, false, "method is not enumerable");
+    equals(d.writable, false, "method is not writable");
+    equals(d.configurable, false, "method is not configurable");
+    
+    ok( p.hasOwnProperty("prop"),"prop should be on the prototype");
+    d=Object.getOwnPropertyDescriptor(p, "prop");
+    equals(d.value, "foo", "prop is 'foo'");
+    equals(d.enumerable, true, "prop is enumerable");
+    equals(d.writable, true, "prop is writable");
+    equals(d.configurable, true, "prop is configurable");
+    
+    ok( p.hasOwnProperty("accessor"),"accessor should be on the prototype");
+    d=Object.getOwnPropertyDescriptor(p, "accessor");
+    ok(d.get, "getter is defined");
+    equals(d.enumerable, true, "accessor is enumerable");
+    equals(d.configurable, false, "accessor is not configurable");
+});
+
+test("Staticness",function(){
+    expect(4);
+
+    ok( Klass.method, "static method exists");
+    ok( Klass.method != k.method, "static and instance method differ");
+    equals( Klass.method(), 2, "static returns correct result");
+    equals( Klass.self(), Klass, "correct <this>");
+});
+
+module("inheritance");
+
+var A = Class({
+    instance : {
+        foo: {
+            value: function(){
+                return "A foo";
+            }
+        }
+    }
+}),
+B = Class({
+    parent: A,
+    "static":{
+        bar: {
+            value: function(){
+                return "b bar";
+            }
+        }
+    }
+}),
+C = Class({
+    parent: B,
+    instance: {
+        foo: {
+            value: function(){
+                return "C "+A.prototype.foo.call(this);
+            }
+        }
+    }
+}),a=A(),b=B(),c=C();
+
+test("static inheritance", function(){
+    expect(4);
+
+    ok( !!B.bar(),"B has a static bar method");
+    ok( !!C.bar(),"C has a static bar method");
+    equals( B.bar, C.bar,"C inherits static method from B!");
+    equals( B.bar(), C.bar(), "same!");
+});
+
+
+test("creation", function(){
+    expect(9);
+
+    equals( A.is( a), true, "a is an instance of A");
+    equals( A.is( b), true, "b is an instance of A");
+    equals( A.is( c), true, "c is an instance of A");
+    equals( B.is( a), false, "a is not an instance of B");
+    equals( B.is( b), true, "b is an instance of B");
+    equals( B.is( c), true, "c is an instance of B");
+    equals( C.is( a), false, "a is not an instance of C");
+    equals( C.is( b), false, "b is not an instance of C");
+    equals( C.is( c), true, "c is an instance of C");
+});
+
+test("instance inheritance",function(){
+    expect(4);
+    
+    equals( a.foo(), "A foo", "a foo is a foo :|");
+    equals( b.foo(), "A foo", "b.foo is also a foo :|");
+    equals( b.foo, a.foo, "same foo methods");
+    equals( c.foo(), "C A foo","c foo is c a foo");
+});
+</script>
+</body>
+</html>
