@@ -8,7 +8,7 @@
 var Class = (function( Object){
 "use strict";
 
-var skip = Object.getOwnPropertyNames(function(){}),
+var skip = Object.getOwnPropertyNames(function(){}).concat(["prototype"]),
 
 Class = function( obj){
     var klass = function self(){
