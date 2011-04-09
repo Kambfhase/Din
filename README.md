@@ -35,6 +35,8 @@ The framework should be able to run in any environment. There is no need for it,
 ` obj.static` (optional) property descriptor map to be added to the resulting class constructor.  
 ` obj.instance` (optional) property descriptor map added to the classes prototype.  
 `Class( obj)` forwards to `Class.create( obj)`.  
+`Class.toPropertyDescriptorMap( obj)` creates a property descriptor map of `obj`'s properties. Useful for reducing filesize.  
+`Class.addSuper( obj[, keyword])` adds a `super` property to a static/instance method which points a method of the same name up the prototype chain. `obj` should be a `Class.create()` compliant object. `keyword` is a optional parameter to specify the name of the super property.  
 
 let Klass be a class create via `Class.create( obj)` ( you see what I did there?!).  
 `Klass.create( args)` default: creates a new object inheriting from Klass.prototype.  
@@ -90,6 +92,48 @@ Yes, i do know, that `"static"` and `"instance"` are horrible names, but I can't
     Pirate.is( Pirate.create("Blackbeard")) // true
 
 Class comes with a few extras: `Class()` is a shortcut for `Class.create()`, which does also apply for every new class like Pirate. Class also adds a static `is` method which returns true if the passed object is an instance. A `constructor` property is also added the prototype so that `instanceof` works, too.
+
+    Class.toPropertyDescriptorMap({
+        method: function(){
+            return "foo";
+        },
+        prop: 5
+    })
+    // that returns: 
+    {
+        method: {
+            value: function(){
+                return "foo";
+            },
+            enumerable: true,
+            configurable: true,
+            writable: true
+        },
+        prop: {
+            value: 5
+            enumerable: true,
+            configurable: true,
+            writable: true
+        }
+    }
+    
+    var Butler = Class( Class.addSuper({
+        parent: Person,
+        instance: {
+            greet: {
+                value: function self( polite){
+                    if( polite){
+                        return "Good day Sir or Madam, my name is "+ this.name+".";
+                    } else {
+                        return self.super.call( this);
+                    }
+                }
+            }
+        }
+    }));
+    
+    Butler("James").greet(); // "Hi, I am James."
+    Butler("James").greet(true); // "Good day Sir or Madam, my name is James."
 
 ## Conclusion
 
