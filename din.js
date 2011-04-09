@@ -1,7 +1,7 @@
 /*
  * Din - A JavaScript Double Inheritance Framework
  * by Kambfhase
- * v0.1.2
+ * v0.1.3
  * MIT License
  */
 
