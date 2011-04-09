@@ -233,6 +233,69 @@ test("Class.toPropertyDescriptorMap",function(){
     equals( false, A.foo.writable, "foo: writable is false");
     
 });
+
+test("Class.addSuper",function( undefined){
+    expect(8);
+
+    ok( Class.addSuper, "It exists!");
+    ok( Class.addSuper({}), "something returned!");
+    
+    var A = Class({
+        instance: {
+            method: {
+                value: function m(){ return m.super},
+                enumerable: true,
+                configurable: true,
+                writable: true
+            }
+        }
+    }), B = Class( Class.addSuper({
+        parent: A,
+        "static": {
+            method: {
+                value: function m(){ return m.super},
+                enumerable: true,
+                configurable: true,
+                writable: true
+            }
+        }
+    })), C = Class( Class.addSuper({
+        parent: B,
+        instance: {
+            method: {
+                value: function m(){ return m.super},
+                enumerable: true,
+                configurable: true,
+                writable: true
+            }
+        }
+    })), D = Class( Class.addSuper({
+        parent: C,
+        instance: {
+            method: {
+                value: function m(){ return m.super},
+                enumerable: true,
+                configurable: true,
+                writable: true
+            }
+        },
+        "static": {
+            method: {
+                value: function m(){ return m.super},
+                enumerable: true,
+                configurable: true,
+                writable: true
+            }
+        }
+    }));
+    
+    ok( A && B && C && D, "all exist!");
+    equals( A().method(), undefined, "A.prototype.method has no super");
+    equals( B.method(), undefined, "B.method has no super");
+    equals( C().method(), A().method, "C.prototype.method's super is A.prototype.method");
+    equals( D().method(), C().method, "D.prototype.method's super is C.prototype.method");
+    equals( D.method(), B.method, "D.method's super is B.method");
+});
 </script>
 </body>
 </html>
