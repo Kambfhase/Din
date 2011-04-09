@@ -57,6 +57,23 @@ return Class({
             enumerable: false,
             configurable: true,
             writable: true
+        },
+        toPropertyDescriptorMap: {
+            value: function( obj){
+                // takes a regular object as param and returns its property descriptor map.
+                var desc = {}, name,
+                    names = Object.getOwnPropertyNames( obj),
+                    i = names.length;
+                
+                while( i--){
+                    name = names[i];
+                    desc[ name] = Object.getOwnPropertyDescriptor( obj, name);
+                }
+                return desc;
+            },
+            enumerable: false,
+            configurable: true,
+            writable: true
         }
     }
 });

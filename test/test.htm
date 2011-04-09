@@ -200,6 +200,39 @@ test("instance inheritance",function(){
     equals( b.foo, a.foo, "same foo methods");
     equals( c.foo(), "C A foo","c foo is c a foo");
 });
+
+module("extra");
+
+test("Class.toPropertyDescriptorMap",function(){
+    expect(13);
+    
+    ok( Class.toPropertyDescriptorMap, "existance!");
+    ok( Class.toPropertyDescriptorMap({}), "something is returned!");
+    var a = {
+        method: function(){},
+        prop: 5
+    },A=Class.toPropertyDescriptorMap(a);
+    
+    equals( a.method, A.method.value, "method: same value");
+    equals( true, A.method.enumerable, "method: enumerable is true");
+    equals( true, A.method.writable, "method: writerable is true");
+    equals( true, A.method.configurable, "method: configurable is true");
+    
+    equals( 5, A.prop.value, "prop: same value");
+    equals( true, A.prop.enumerable, "prop: enumerable is true");
+    equals( true, A.prop.writable, "prop: writerable is true");
+    equals( true, A.prop.configurable, "prop: configurable is true");
+    
+    Object.defineProperty(a,"foo",{
+        configurable: false
+    });
+    
+    A=Class.toPropertyDescriptorMap(a);
+    equals( false, A.foo.configurable, "foo: configurable is false");
+    equals( false, A.foo.enumerable, "foo: enumerable is false");
+    equals( false, A.foo.writable, "foo: writable is false");
+    
+});
 </script>
 </body>
 </html>
