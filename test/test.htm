@@ -243,7 +243,7 @@ test("Class.addSuper",function( undefined){
     var A = Class({
         instance: {
             method: {
-                value: function m(){ return m.super},
+                value: function m(){ return m['super'];},
                 enumerable: true,
                 configurable: true,
                 writable: true
@@ -253,7 +253,7 @@ test("Class.addSuper",function( undefined){
         parent: A,
         "static": {
             method: {
-                value: function m(){ return m.super},
+                value: function m(){ return m['super'];},
                 enumerable: true,
                 configurable: true,
                 writable: true
@@ -263,7 +263,7 @@ test("Class.addSuper",function( undefined){
         parent: B,
         instance: {
             method: {
-                value: function m(){ return m.super},
+                value: function m(){ return m['super'];},
                 enumerable: true,
                 configurable: true,
                 writable: true
@@ -273,7 +273,7 @@ test("Class.addSuper",function( undefined){
         parent: C,
         instance: {
             method: {
-                value: function m(){ return m.super},
+                value: function m(){ return m.__super__;},
                 enumerable: true,
                 configurable: true,
                 writable: true
@@ -281,13 +281,13 @@ test("Class.addSuper",function( undefined){
         },
         "static": {
             method: {
-                value: function m(){ return m.super},
+                value: function m(){ return m.__super__;},
                 enumerable: true,
                 configurable: true,
                 writable: true
             }
         }
-    }));
+    },'__super__'));
     
     ok( A && B && C && D, "all exist!");
     equals( A().method(), undefined, "A.prototype.method has no super");
