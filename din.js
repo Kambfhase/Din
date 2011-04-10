@@ -48,87 +48,74 @@ Class = function( obj){
     
 
     return klass;
+},
+toPropertyDescriptorMap=function( obj){
+    // takes a regular object as param and returns its property descriptor map.
+    var desc = {}, name,
+        names = Object.getOwnPropertyNames( obj),
+        i = names.length;
+    
+    while( i--){
+        name = names[i];
+        desc[ name] = Object.getOwnPropertyDescriptor( obj, name);
+    }
+    return desc;
+},
+addSuper=function( obj, keyword){
+    // adds a super property to all methods.
+    var par = obj[ "parent" ],
+        stat = obj[ "static"],
+        inst = obj["instance"],
+        names,name,i,desc, value;
+        
+    keyword = keyword || "super";
+    
+    if( !par){
+        return obj; // quick exit
+    }
+    
+    if( stat){
+        // add supers on static methods
+        names = Object.getOwnPropertyNames( stat);
+        i = names.length;
+        
+        while( i--){
+            name = names[ i];
+            desc = stat[ name];
+            value = desc.value;
+            if( value && typeof value === "function"){
+                // method found
+                // note: no check wether par[name] exists or is a function!
+                // note: type check might fail on edge cases
+                value[ keyword] = par[ name];
+            }
+        }
+    }
+    
+    if( inst){
+        // add supers on instance methods
+        names = Object.getOwnPropertyNames( inst);
+        i = names.length;
+        
+        while( i--){
+            name = names[ i];
+            desc = inst[ name];
+            value = desc.value;
+            if( value && typeof value === "function"){
+                value[ keyword] = par.prototype[ name];
+            }
+        }
+    }
+    
+    return obj;
 };
 
 return Class({
-    "static": {
-        create: {
-            value: Class,
-            enumerable: false,
-            configurable: true,
-            writable: true
-        },
-        toPropertyDescriptorMap: {
-            value: function( obj){
-                // takes a regular object as param and returns its property descriptor map.
-                var desc = {}, name,
-                    names = Object.getOwnPropertyNames( obj),
-                    i = names.length;
-                
-                while( i--){
-                    name = names[i];
-                    desc[ name] = Object.getOwnPropertyDescriptor( obj, name);
-                }
-                return desc;
-            },
-            enumerable: true,
-            configurable: true,
-            writable: true
-        },
-        addSuper: {
-            value: function( obj, keyword){
-                // adds a super property to all methods.
-                var par = obj[ "parent" ],
-                    stat = obj[ "static"],
-                    inst = obj["instance"],
-                    names,name,i,desc, value;
-                    
-                keyword = keyword || "super";
-                
-                if( !par){
-                    return obj; // quick exit
-                }
-                
-                if( stat){
-                    // add supers on static methods
-                    names = Object.getOwnPropertyNames( stat);
-                    i = names.length;
-                    
-                    while( i--){
-                        name = names[ i];
-                        desc = stat[ name];
-                        value = desc.value;
-                        if( value && typeof value === "function"){
-                            // method found
-                            // note: no check wether par[name] exists or is a function!
-                            // note: type check might fail on edge cases
-                            value[ keyword] = par[ name];
-                        }
-                    }
-                }
-                
-                if( inst){
-                    // add supers on instance methods
-                    names = Object.getOwnPropertyNames( inst);
-                    i = names.length;
-                    
-                    while( i--){
-                        name = names[ i];
-                        desc = inst[ name];
-                        value = desc.value;
-                        if( value && typeof value === "function"){
-                            value[ keyword] = par.prototype[ name];
-                        }
-                    }
-                }
-                
-                return obj;
-            },
-            enumerable: true,
-            configurable: true,
-            writable: true
-        }
-    }
+    "static": toPropertyDescriptorMap({
+        create: Class,
+        toPropertyDescriptorMap: toPropertyDescriptorMap,
+        addSuper: addSuper
+    })
 });
 
 })(Object);
