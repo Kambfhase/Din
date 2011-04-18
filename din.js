@@ -8,25 +8,39 @@
 var Class = (function( Object){
 "use strict";
 
-var skip = Object.getOwnPropertyNames(function(){}).concat(["prototype"]),
+function isFunction( fn){
+    return typeof fn == "function";
+}
 
-Class = function( obj){
+function iterateOwnProperties( obj, callback, thisArg){
+    //  iterates over an objects own keys. skips weird properties on functions
+    var names = Object.getOwnPropertyNames( obj),
+        i = names.length, name, 
+        isFn = isFunction( obj),
+        skip = iterateOwnProperties.skip;
+
+    while( i--){
+        name = names[ i];
+        if( !(isFn && ~skip.indexOf( name))){
+            callback.call( thisArg, obj[name], name, obj);
+        }
+    }
+}
+
+iterateOwnProperties.skip = Object.getOwnPropertyNames(function(){}).concat(["prototype"]);
+
+var Class = function( obj){
     var klass = function self(){
             return self.create.apply( self, arguments);
-        }, props, i, prop,
+        },
         par = obj[ "parent" ],
         stat = obj[ "static"],
         inst = obj["instance"];
 
     if( par){
-        props = Object.getOwnPropertyNames( par);
-        i= props.length;
-        while( i--){
-            prop = props[ i];
-            if( !~ skip.indexOf( prop)){
-                 Object.defineProperty( klass, prop, Object.getOwnPropertyDescriptor( par, prop));
-            }
-        }
+        iterateOwnProperties( par, function( prop, name){
+            Object.defineProperty( klass, name, Object.getOwnPropertyDescriptor( par, name));
+        });
     }
     
     if( stat){
@@ -51,22 +65,19 @@ Class = function( obj){
 },
 toPropertyDescriptorMap=function( obj){
     // takes a regular object as param and returns its property descriptor map.
-    var desc = {}, name,
-        names = Object.getOwnPropertyNames( obj),
-        i = names.length;
+    var desc = {};
     
-    while( i--){
-        name = names[i];
+    iterateOwnProperties( obj, function( prop, name){
         desc[ name] = Object.getOwnPropertyDescriptor( obj, name);
-    }
+    });
+    
     return desc;
 },
 addSuper=function( obj, keyword){
     // adds a super property to all methods.
     var par = obj[ "parent" ],
         stat = obj[ "static"],
-        inst = obj["instance"],
-        names,name,i,desc, value;
+        inst = obj["instance"];
         
     keyword = keyword || "super";
     
@@ -75,38 +86,23 @@ addSuper=function( obj, keyword){
     }
     
     if( stat){
-        // add supers on static methods
-        names = Object.getOwnPropertyNames( stat);
-        i = names.length;
-        
-        while( i--){
-            name = names[ i];
-            desc = stat[ name];
-            value = desc.value;
-            if( value && typeof value === "function"){
-                // method found
-                // note: no check wether par[name] exists or is a function!
-                // note: type check might fail on edge cases
-                value[ keyword] = par[ name];
+        iterateOwnProperties( stat, function( prop, name){
+            var value = prop.value;
+            if( value && isFunction( value)){
+                value[ keyword] = par[name];
             }
-        }
+        });
     }
     
     if( inst){
-        // add supers on instance methods
-        names = Object.getOwnPropertyNames( inst);
-        i = names.length;
-        
-        while( i--){
-            name = names[ i];
-            desc = inst[ name];
-            value = desc.value;
-            if( value && typeof value === "function"){
-                value[ keyword] = par.prototype[ name];
+        iterateOwnProperties( inst, function( prop, name){
+            var value = prop.value;
+            if( value && isFunction( value)){
+                value[ keyword] = par.prototype[name];
             }
-        }
+        });
     }
-    
+           
     return obj;
 };
 
