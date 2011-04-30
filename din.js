@@ -11,7 +11,7 @@ var Class = (function (Object) {
     function isFunction(fn) {
         return typeof fn == "function";
     }
-
+    
     function iterateOwnProperties(obj, callback, thisArg) {
         //  iterates over an objects own keys. skips weird properties on functions
         var names = Object.getOwnPropertyNames(obj),
@@ -26,10 +26,11 @@ var Class = (function (Object) {
             }
         }
     }
-
+    
     iterateOwnProperties.skip = Object.getOwnPropertyNames(function () {}).concat(["prototype"]);
 
-    var Class = function (obj) {
+    var objClass = {
+        create: function (obj) {
             var klass = function self() {
                     return self.create.apply(self, arguments);
                 },
@@ -67,7 +68,7 @@ var Class = (function (Object) {
 
             return klass;
         },
-        toPropertyDescriptorMap = function (obj) {
+        toPropertyDescriptorMap : function (obj) {
             // takes a regular object as param and returns its property descriptor map.
             var desc = {};
 
@@ -77,7 +78,7 @@ var Class = (function (Object) {
 
             return desc;
         },
-        addSuper = function (obj, keyword) {
+        addSuper : function (obj, keyword) {
             // adds a super property to all methods.
             var par = obj["parent"],
                 stat = obj["static"],
@@ -108,14 +109,12 @@ var Class = (function (Object) {
             }
 
             return obj;
-        };
-
-    return Class({
-        "static": toPropertyDescriptorMap({
-            create: Class,
-            toPropertyDescriptorMap: toPropertyDescriptorMap,
-            addSuper: addSuper
-        })
+        }
+    };
+    
+    
+    return objClass.create({
+        "static": objClass.toPropertyDescriptorMap(objClass)
     });
 
 })(Object);
